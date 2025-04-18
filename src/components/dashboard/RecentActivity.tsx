@@ -6,6 +6,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Receipt, CreditCard, User } from 'lucide-react';
 import { format } from 'date-fns';
 
+type ActivityExpense = {
+  id: string;
+  type: 'expense';
+  date: Date;
+  description: string;
+  amount: number;
+  currency: string;
+  paidBy: string;
+  groupId: string;
+};
+
+type ActivitySettlement = {
+  id: string;
+  type: 'settlement';
+  date: Date;
+  description: string;
+  amount: number;
+  currency: string;
+  fromUser: string;
+  toUser: string;
+  status: 'pending' | 'completed' | 'declined';
+  groupId: string;
+};
+
+type Activity = ActivityExpense | ActivitySettlement;
+
 const RecentActivity = () => {
   const { expenses, settlements } = useStore();
   
@@ -15,10 +41,10 @@ const RecentActivity = () => {
   };
   
   // Combine expenses and settlements for activity feed
-  const activities = [
+  const activities: Activity[] = [
     ...expenses.map(expense => ({
       id: expense.id,
-      type: 'expense',
+      type: 'expense' as const,
       date: expense.date,
       description: expense.description,
       amount: expense.amount,
@@ -28,7 +54,7 @@ const RecentActivity = () => {
     })),
     ...settlements.map(settlement => ({
       id: settlement.id,
-      type: 'settlement',
+      type: 'settlement' as const,
       date: new Date(), // In a real app, we'd have createdAt
       description: `Payment from ${getUserName(settlement.fromUser)} to ${getUserName(settlement.toUser)}`,
       amount: settlement.amount,
@@ -67,12 +93,12 @@ const RecentActivity = () => {
               <div className="flex-1 space-y-1">
                 <p className="font-medium text-sm">
                   {activity.type === 'expense' 
-                    ? `${getUserName(activity.paidBy)} paid ${activity.currency} ${activity.amount}`
+                    ? `${getUserName((activity as ActivityExpense).paidBy)} paid ${activity.currency} ${activity.amount}`
                     : activity.description}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {activity.type === 'expense' ? activity.description : 
-                    activity.status === 'completed' ? 'Payment completed' : 'Payment pending'}
+                    (activity as ActivitySettlement).status === 'completed' ? 'Payment completed' : 'Payment pending'}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {format(activity.date, 'MMM d, yyyy')}
