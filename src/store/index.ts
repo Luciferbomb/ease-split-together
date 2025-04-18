@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 
 export interface User {
@@ -66,15 +65,15 @@ interface SpliteaseState {
   isLoading: boolean;
   activeGroupId: string | null;
   
+  // Navigation state
+  navbarOpen: boolean;
+  toggleNavbar: () => void;
+  
   // Example actions
   login: (user: User) => void;
   logout: () => void;
   createGroup: (group: Omit<Group, 'id'>) => void;
   addExpense: (expense: Omit<Expense, 'id'>) => void;
-  
-  // Navigation state
-  navbarOpen: boolean;
-  toggleNavbar: () => void;
 }
 
 export const useStore = create<SpliteaseState>((set) => ({
